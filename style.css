@@ -48,7 +48,7 @@ h1 { font-size: 1.05rem; font-weight: 700; white-space: nowrap; overflow: hidden
 #source-nav {
     display: flex; flex-wrap: wrap; gap: .4rem; overflow: hidden; padding: .5rem 0;
 }
-#source-nav.collapsed { max-height: var(--nav2, 4.2rem); }
+#source-nav.collapsed { max-height: var(--nav2, 4.2rem); padding-right: 110px; }
 .nav-wrap { position: relative; }
 #nav-more {
     position: absolute; right: 0; bottom: .5rem;
