@@ -9,9 +9,9 @@
     <link rel="preconnect" href="https://api.rss2json.com" crossorigin>
     <link rel="dns-prefetch" href="https://api.allorigins.win">
     <script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
-    <link rel="stylesheet" href="style.css?v=16">
-    <script src="config.js?v=16" defer></script>
-    <script src="app.js?v=16" defer></script>
+    <link rel="stylesheet" href="style.css?v=17">
+    <script src="config.js?v=17" defer></script>
+    <script src="app.js?v=17" defer></script>
 </head>
 <body>
     <header class="top">
@@ -44,6 +44,11 @@
                 <button id="settings-close" class="btn" type="button">閉じる</button>
             </div>
             <div id="feed-list"></div>
+            <h3>中継サーバー</h3>
+            <div class="add-row">
+                <input id="relay-url" type="url" inputmode="url" placeholder="https://xxx.workers.dev（空なら使わない）">
+                <button id="relay-save" class="btn" type="button">保存</button>
+            </div>
             <h3>追加</h3>
             <div class="add-row">
                 <input id="add-name" type="text" maxlength="24" placeholder="名前（省略可）">

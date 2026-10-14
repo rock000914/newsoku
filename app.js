@@ -160,29 +160,54 @@ async function viaAllOrigins(feed, signal) {
     }
 }
 
-// rss2json を先に試し、遅い/失敗ならallOriginsも並行して走らせ、先に成功した方を採用。
+// 自前中継があれば最優先、なければrss2jsonを先に試し、
+// 遅い/失敗なら次の経路も並行して走らせ、先に成功した方を採用。
 // FETCH_TIMEOUT で必ず打ち切る。
+function relayUrl() {
+    try { return localStorage.getItem("relayUrl") || ""; } catch {}
+    return "";
+}
+function relayBase() {
+    const u = relayUrl() || ((typeof RELAY_API !== "undefined" && RELAY_API) || "");
+    return u ? u.replace(/\/$/, "") : "";
+}
+async function viaRelay(feed, signal) {
+    const base = relayBase();
+    if (!base) throw new Error("no relay");
+    const res = await fetch(base + "?url=" + encodeURIComponent(feed.url), { signal });
+    if (!res.ok) throw new Error("relay " + res.status);
+    const text = await res.text();
+    if (!text) throw new Error("relay empty");
+    try {
+        const j = JSON.parse(text);
+        if (j && typeof j.contents === "string" && j.contents) return parseXmlItems(j.contents);
+    } catch {}
+    return parseXmlItems(text);
+}
 function fetchOne(feed) {
     const ctrl = new AbortController();
     const killTimer = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT);
+    const done = () => { clearTimeout(killTimer); clearTimeout(hedgeTimer); ctrl.abort(); };
+    const makers = [];
+    if (relayBase()) makers.push((s) => viaRelay(feed, s));
+    makers.push((s) => viaRss2Json(feed, s));
+    makers.push((s) => viaAllOrigins(feed, s));
     let hedgeTimer, started = false;
-    const primary = viaRss2Json(feed, ctrl.signal);
-    const backup = new Promise((resolve, reject) => {
+    const first = makers[0](ctrl.signal);
+    const second = new Promise((resolve, reject) => {
         const start = () => {
             if (started) return;
             started = true;
             clearTimeout(hedgeTimer);
-            viaAllOrigins(feed, ctrl.signal).then(resolve, reject);
+            makers[1](ctrl.signal).then(resolve, reject);
         };
         hedgeTimer = setTimeout(start, HEDGE_DELAY);
-        primary.catch(start);
+        first.catch(start);
     });
-    return Promise.any([primary, backup]).finally(() => {
-        started = true;
-        clearTimeout(killTimer);
-        clearTimeout(hedgeTimer);
-        ctrl.abort();
-    });
+    return Promise.any([first, second]).catch((e) => {
+        if (makers.length > 2 && !ctrl.signal.aborted) return makers[2](ctrl.signal);
+        throw e;
+    }).finally(done);
 }
 
 // feed.url は文字列でも配列でもOK。配列なら先頭から順に試し、最初に成功したものを採用する。
@@ -397,7 +422,16 @@ function initSettings() {
     $("settings-btn").addEventListener("click", () => {
         renderFeedList();
         settingsMsg("");
+        try { $("relay-url").value = localStorage.getItem("relayUrl") || ""; } catch {}
         $("settings-overlay").hidden = false;
+    });
+    $("relay-save").addEventListener("click", () => {
+        const v = $("relay-url").value.trim().replace(/\/$/, "");
+        try {
+            if (v) localStorage.setItem("relayUrl", v);
+            else localStorage.removeItem("relayUrl");
+        } catch {}
+        settingsMsg(v ? "中継サーバーを保存しました" : "中継サーバーを無効にしました");
     });
     $("settings-close").addEventListener("click", () => { $("settings-overlay").hidden = true; });
     $("settings-overlay").addEventListener("click", (e) => {

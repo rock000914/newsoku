@@ -15,6 +15,9 @@ const RSS_FEEDS = [
 // ---- API ------------------------------------------------------------------
 const RSS2JSON_API   = "https://api.rss2json.com/v1/api.json?rss_url=";
 const ALLORIGINS_API = "https://api.allorigins.win/get?url=";
+// 自前の中継サーバー (Cloudflare Workers) のURL。空なら使わない。
+// ⚙設定からも変更できる（そちらが優先）。
+const RELAY_API = "";
 
 // ---- 広告・固定記事の除外 ---------------------------------------------------
 // 支援のお願いなどの「固定記事」は、常に先頭へ出すため未来の日時が付いていることが多い。
