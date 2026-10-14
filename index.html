@@ -9,9 +9,9 @@
     <link rel="preconnect" href="https://api.rss2json.com" crossorigin>
     <link rel="dns-prefetch" href="https://api.allorigins.win">
     <script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
-    <link rel="stylesheet" href="style.css?v=13">
-    <script src="config.js?v=13" defer></script>
-    <script src="app.js?v=13" defer></script>
+    <link rel="stylesheet" href="style.css?v=14">
+    <script src="config.js?v=14" defer></script>
+    <script src="app.js?v=14" defer></script>
 </head>
 <body>
     <header class="top">
@@ -23,8 +23,10 @@
                 <button id="settings-btn" class="btn" type="button" aria-label="フィード設定">⚙</button>
             </div>
         </div>
-        <nav id="source-nav" aria-label="サイト絞り込み"></nav>
-        <div class="nav-more-row" hidden><button id="nav-more" class="btn" type="button">すべて表示</button></div>
+        <div class="nav-wrap">
+            <nav id="source-nav" aria-label="サイト絞り込み"></nav>
+            <button id="nav-more" class="btn" type="button" hidden>すべて表示</button>
+        </div>
     </header>
     <main>
         <p id="status" role="status"></p>

@@ -49,9 +49,14 @@ h1 { font-size: 1.05rem; font-weight: 700; white-space: nowrap; overflow: hidden
     display: flex; flex-wrap: wrap; gap: .4rem; overflow: hidden; padding: .5rem 0;
 }
 #source-nav.collapsed { max-height: var(--nav2, 4.2rem); }
-.nav-more-row { padding: 0 0 .5rem; }
-.nav-more-row[hidden] { display: none; }
-#nav-more { font-size: .75rem; padding: .25rem .7rem; min-height: 30px; }
+.nav-wrap { position: relative; }
+#nav-more {
+    position: absolute; right: 0; bottom: .5rem;
+    font-size: .75rem; padding: .25rem .7rem; min-height: 30px;
+    box-shadow: -8px 0 8px var(--surface), 0 2px 8px rgba(0,0,0,.2);
+}
+#nav-more.static { position: static; display: block; margin: 0 0 .5rem auto; box-shadow: none; }
+#nav-more[hidden] { display: none; }
 .chip {
     flex: none; display: inline-flex; align-items: center; gap: .35rem;
     font: inherit; font-size: .82rem; color: var(--text); background: var(--day-bg);

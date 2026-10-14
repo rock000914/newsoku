@@ -292,19 +292,19 @@ function updateChrome() { renderNav(); updateStatus(); updateNavCollapse(); }
 let navExpanded = false;
 function updateNavCollapse() {
     const nav = $("source-nav");
-    const row = document.querySelector(".nav-more-row");
     const btn = $("nav-more");
     nav.classList.remove("collapsed");
     const chip = nav.querySelector(".chip");
-    if (!chip) { row.hidden = true; return; }
+    if (!chip) { btn.hidden = true; return; }
     const two = chip.offsetHeight * 2 + 6;
     if (nav.scrollHeight > two + 2) {
         if (!navExpanded) nav.classList.add("collapsed");
         nav.style.setProperty("--nav2", two + "px");
-        row.hidden = false;
+        btn.hidden = false;
+        btn.classList.toggle("static", navExpanded);
         btn.textContent = navExpanded ? "閉じる" : "すべて表示";
     } else {
-        row.hidden = true;
+        btn.hidden = true;
         navExpanded = false;
     }
 }
@@ -496,7 +496,9 @@ function init() {
     $("nav-more").addEventListener("click", () => {
         navExpanded = !navExpanded;
         $("source-nav").classList.toggle("collapsed", !navExpanded);
-        $("nav-more").textContent = navExpanded ? "閉じる" : "すべて表示";
+        const btn = $("nav-more");
+        btn.classList.toggle("static", navExpanded);
+        btn.textContent = navExpanded ? "閉じる" : "すべて表示";
     });
     let resizeTimer = 0;
     window.addEventListener("resize", () => {
