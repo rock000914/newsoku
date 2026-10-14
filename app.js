@@ -286,7 +286,28 @@ function updateStatus() {
     btn.classList.toggle("busy", loading > 0);
 }
 
-function updateChrome() { renderNav(); updateStatus(); }
+function updateChrome() { renderNav(); updateStatus(); updateNavCollapse(); }
+
+// チップが2行に収まらない場合だけ「すべて表示」ボタンを出す
+let navExpanded = false;
+function updateNavCollapse() {
+    const nav = $("source-nav");
+    const row = document.querySelector(".nav-more-row");
+    const btn = $("nav-more");
+    nav.classList.remove("collapsed");
+    const chip = nav.querySelector(".chip");
+    if (!chip) { row.hidden = true; return; }
+    const two = chip.offsetHeight * 2 + 6;
+    if (nav.scrollHeight > two + 2) {
+        if (!navExpanded) nav.classList.add("collapsed");
+        nav.style.setProperty("--nav2", two + "px");
+        row.hidden = false;
+        btn.textContent = navExpanded ? "閉じる" : "すべて表示";
+    } else {
+        row.hidden = true;
+        navExpanded = false;
+    }
+}
 
 /* ---------- theme ---------- */
 function effectiveTheme() {
@@ -472,6 +493,16 @@ function init() {
         applyNow = false;
     });
     $("new-bar").addEventListener("click", () => { render(); window.scrollTo({ top: 0 }); });
+    $("nav-more").addEventListener("click", () => {
+        navExpanded = !navExpanded;
+        $("source-nav").classList.toggle("collapsed", !navExpanded);
+        $("nav-more").textContent = navExpanded ? "閉じる" : "すべて表示";
+    });
+    let resizeTimer = 0;
+    window.addEventListener("resize", () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(updateNavCollapse, 200);
+    });
     $("theme-btn").addEventListener("click", () => {
         const next = effectiveTheme() === "dark" ? "light" : "dark";
         document.documentElement.dataset.theme = next;
