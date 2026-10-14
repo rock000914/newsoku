@@ -150,7 +150,10 @@ footer { text-align: center; padding: 1.5rem; color: var(--muted); font-size: .7
 }
 .feed-toggle { display: flex; align-items: center; gap: .4rem; cursor: pointer; }
 .feed-toggle input { width: 1rem; height: 1rem; accent-color: var(--accent); }
-.feed-name { font-weight: 700; white-space: nowrap; }
+.feed-name-input {
+    flex: 0 0 9rem; min-width: 0; font: inherit; font-size: .85rem; font-weight: 700; color: var(--text);
+    background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: .3rem .5rem;
+}
 .feed-url { flex: 1; color: var(--muted); font-size: .75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .btn.danger { background: transparent; color: var(--danger); border: 1px solid var(--danger); min-height: 32px; padding: .25rem .6rem; }
 .add-row { display: flex; gap: .5rem; margin-bottom: .5rem; }

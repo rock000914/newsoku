@@ -323,8 +323,8 @@ function settingsMsg(t) { $("settings-msg").textContent = t || ""; }
 function renderFeedList() {
     const el = $("feed-list");
     el.innerHTML = RSS_FEEDS.map((f, i) =>
-        `<div class="feed-row"><label class="feed-toggle"><input type="checkbox" data-toggle="${i}"${f.off ? "" : " checked"}>` +
-        `<span class="feed-name">${esc(f.name)}</span></label>` +
+        `<div class="feed-row"><label class="feed-toggle"><input type="checkbox" data-toggle="${i}"${f.off ? "" : " checked"}></label>` +
+        `<input class="feed-name-input" data-rename="${i}" value="${esc(f.name)}" maxlength="24" aria-label="サイト名">` +
         `<span class="feed-url">${esc([].concat(f.url)[0])}${[].concat(f.url).length > 1 ? " 他" : ""}</span>` +
         `<button type="button" class="btn danger" data-del="${i}">削除</button></div>`
     ).join("") || `<p class="empty">フィードがありません。</p>`;
@@ -405,11 +405,32 @@ function initSettings() {
     });
 
     $("feed-list").addEventListener("change", (e) => {
-        const i = e.target.dataset.toggle;
-        if (i == null) return;
-        RSS_FEEDS[+i].off = !e.target.checked;
-        afterFeedsChanged();
-        renderFeedList();
+        const t = e.target.dataset.toggle;
+        if (t != null) {
+            RSS_FEEDS[+t].off = !e.target.checked;
+            afterFeedsChanged();
+            renderFeedList();
+            return;
+        }
+        const r = e.target.dataset.rename;
+        if (r != null) {
+            const f = RSS_FEEDS[+r];
+            const nn = e.target.value.trim().slice(0, 24);
+            if (!nn) { e.target.value = f.name; settingsMsg("名前が空です"); return; }
+            if (nn !== f.name && RSS_FEEDS.some(x => x.name === nn)) {
+                e.target.value = f.name;
+                settingsMsg("同名のフィードがあります");
+                return;
+            }
+            if (nn !== f.name) {
+                if (feedData[f.name]) { feedData[nn] = feedData[f.name]; delete feedData[f.name]; }
+                if (feedStatus[f.name]) { feedStatus[nn] = feedStatus[f.name]; delete feedStatus[f.name]; }
+                if (filter === f.name) filter = nn;
+                f.name = nn;
+                afterFeedsChanged();
+                settingsMsg("名前を変更しました");
+            }
+        }
     });
     $("feed-list").addEventListener("click", (e) => {
         const i = e.target.dataset.del;
