@@ -548,6 +548,44 @@ function initSettings() {
         }
     });
 
+    $("feeds-export").addEventListener("click", () => {
+        let relay = "";
+        try { relay = localStorage.getItem("relayUrl") || ""; } catch {}
+        const blob = new Blob([JSON.stringify({ feeds: RSS_FEEDS, relayUrl: relay }, null, 2)], { type: "application/json" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "newsoku-feeds.json";
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+        settingsMsg("newsoku-feeds.json を保存しました");
+    });
+    $("feeds-import").addEventListener("click", () => $("feeds-file").click());
+    $("feeds-file").addEventListener("change", async (e) => {
+        const f = e.target.files[0];
+        e.target.value = "";
+        if (!f) return;
+        try {
+            const data = JSON.parse(await f.text());
+            if (!data || !Array.isArray(data.feeds) || !data.feeds.length) throw new Error("bad file");
+            const ok = data.feeds.filter(x => x && typeof x.name === "string" && x.name &&
+                (typeof x.url === "string" || (Array.isArray(x.url) && x.url.length)));
+            if (!ok.length) throw new Error("bad file");
+            RSS_FEEDS.length = 0;
+            ok.forEach(x => RSS_FEEDS.push({ name: x.name, url: x.url, siteUrl: x.siteUrl || "", off: !!x.off }));
+            try {
+                if (typeof data.relayUrl === "string" && data.relayUrl) localStorage.setItem("relayUrl", data.relayUrl);
+            } catch {}
+            filter = "all";
+            afterFeedsChanged();
+            renderFeedList();
+            try { $("relay-url").value = localStorage.getItem("relayUrl") || ""; } catch {}
+            refresh(false);
+            settingsMsg("取り込みました");
+        } catch {
+            settingsMsg("ファイルが不正です");
+        }
+    });
+
     $("feeds-reset").addEventListener("click", () => {
         try { localStorage.removeItem(FEEDS_KEY); } catch {}
         RSS_FEEDS.length = 0;
