@@ -321,7 +321,8 @@ function updateNavCollapse() {
     nav.classList.remove("collapsed");
     const chip = nav.querySelector(".chip");
     if (!chip) { btn.hidden = true; return; }
-    const two = chip.offsetHeight * 2 + 6;
+    const cs = getComputedStyle(nav);
+    const two = chip.offsetHeight * 2 + 6 + parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
     if (nav.scrollHeight > two + 2) {
         if (!navExpanded) nav.classList.add("collapsed");
         nav.style.setProperty("--nav2", two + "px");
@@ -405,6 +406,23 @@ async function discoverFeeds(siteUrl) {
     });
     const title = (doc.querySelector('meta[property="og:site_name"]')?.content || doc.title || "").trim().slice(0, 24);
     return { title: title || new URL(siteUrl).hostname, candidates: out.slice(0, 8) };
+}
+
+async function fetchSiteTitle(pageUrl) {
+    const urls = [];
+    if (relayBase()) urls.push(relayBase() + "?url=" + encodeURIComponent(pageUrl));
+    urls.push(ALLORIGINS_API + encodeURIComponent(pageUrl));
+    for (const u of urls) {
+        try {
+            const res = await fetch(u);
+            if (!res.ok) continue;
+            const html = await res.text();
+            const doc = new DOMParser().parseFromString(html, "text/html");
+            const t = (doc.querySelector('meta[property="og:site_name"]')?.content || doc.title || "").trim();
+            if (t) return t.slice(0, 24);
+        } catch {}
+    }
+    return "";
 }
 
 function renderCandidates(siteUrl, title, candidates) {
@@ -491,12 +509,18 @@ function initSettings() {
         }
     });
 
-    $("add-direct-btn").addEventListener("click", () => {
+    $("add-direct-btn").addEventListener("click", async () => {
         const url = normalizeUrl($("add-url").value);
         if (!url) { settingsMsg("URLを入力してください"); return; }
         let siteUrl = "";
         try { siteUrl = new URL(url).origin + "/"; } catch {}
-        addFeed($("add-name").value, url, siteUrl);
+        let name = $("add-name").value.trim();
+        if (!name) {
+            settingsMsg("サイト名を取得中…");
+            name = await fetchSiteTitle(siteUrl || url);
+            if (name) $("add-name").value = name;
+        }
+        addFeed(name, url, siteUrl);
     });
 
     $("discover-result").addEventListener("click", async (e) => {
