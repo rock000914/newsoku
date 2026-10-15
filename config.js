@@ -9,7 +9,9 @@ const RSS_FEEDS = [
     { name: "FX2ちゃんねる",      url: "https://www.fx2ch.net/index.rdf",                    siteUrl: "https://www.fx2ch.net/" },
     { name: "市況かぶ全力２階建", url: "https://kabumatome.doorblog.jp/index.rdf",           siteUrl: "https://kabumatome.doorblog.jp/" },
     { name: "メガニケ",             url: ["https://mega-nikke.com/feed", "https://mega-nikke.com/feed/", "https://mega-nikke.com/?feed=rss2"], siteUrl: "https://mega-nikke.com/" },
-    { name: "川口マガジン",         url: ["https://kawaguchi-magazine.com/feed", "https://kawaguchi-magazine.com/feed/", "https://kawaguchi-magazine.com/?feed=rss2"], siteUrl: "https://kawaguchi-magazine.com/" }
+    { name: "川口マガジン",         url: ["https://kawaguchi-magazine.com/feed", "https://kawaguchi-magazine.com/feed/", "https://kawaguchi-magazine.com/?feed=rss2"], siteUrl: "https://kawaguchi-magazine.com/" },
+    { name: "mitaku.net",           url: "https://mitaku.net/feed/", siteUrl: "https://mitaku.net/" },
+    { name: "アニー速報",           url: "http://www.anige-sokuhouvip.com/?xml", siteUrl: "http://www.anige-sokuhouvip.com/" }
 ];
 
 // ---- API ------------------------------------------------------------------
@@ -17,7 +19,7 @@ const RSS2JSON_API   = "https://api.rss2json.com/v1/api.json?rss_url=";
 const ALLORIGINS_API = "https://api.allorigins.win/get?url=";
 // 自前の中継サーバー (Cloudflare Workers) のURL。空なら使わない。
 // ⚙設定からも変更できる（そちらが優先）。
-const RELAY_API = "";
+const RELAY_API = "https://newsoku.mikumikublog.workers.dev";
 
 // ---- 広告・固定記事の除外 ---------------------------------------------------
 // 支援のお願いなどの「固定記事」は、常に先頭へ出すため未来の日時が付いていることが多い。
