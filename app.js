@@ -520,7 +520,10 @@ function initSettings() {
             name = await fetchSiteTitle(siteUrl || url);
             if (name) $("add-name").value = name;
         }
-        addFeed(name, url, siteUrl);
+        if (addFeed(name, url, siteUrl)) {
+            $("add-name").value = "";
+            $("add-url").value = "";
+        }
     });
 
     $("discover-result").addEventListener("click", async (e) => {
@@ -537,7 +540,11 @@ function initSettings() {
                 st.textContent = "取得失敗";
             }
         } else if (a != null) {
-            addFeed($("add-name").value, e.target.dataset.url, e.target.dataset.site);
+            if (addFeed($("add-name").value, e.target.dataset.url, e.target.dataset.site)) {
+                $("add-name").value = "";
+                $("add-url").value = "";
+                $("discover-result").innerHTML = "";
+            }
         }
     });
 
