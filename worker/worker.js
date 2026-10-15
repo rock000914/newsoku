@@ -1,14 +1,28 @@
 // Cloudflare Workers 用のRSS中継サーバー
 // 使い方: Workers → Create → このコードを貼り付け → Deploy
 // 使う: アプリ側の RELAY_API (または⚙設定) に https://<名前>.<アカウント>.workers.dev を設定
+const ALLOWED_ORIGINS = [
+  "https://rock000914.github.io",
+  "http://localhost:8080",
+  "http://127.0.0.1:8080",
+];
+
 export default {
   async fetch(request) {
+    const origin = request.headers.get("Origin") || "";
+    const allowed = ALLOWED_ORIGINS.includes(origin);
     const cors = {
-      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Origin": allowed ? origin : "null",
       "Access-Control-Allow-Methods": "GET, OPTIONS",
       "Access-Control-Max-Age": "86400",
     };
     if (request.method === "OPTIONS") return new Response(null, { headers: cors });
+    if (!allowed) {
+      return new Response(JSON.stringify({ error: "forbidden" }), {
+        status: 403,
+        headers: { ...cors, "Content-Type": "application/json" },
+      });
+    }
 
     const target = new URL(request.url).searchParams.get("url");
     if (!target || !/^https?:\/\//i.test(target)) {
