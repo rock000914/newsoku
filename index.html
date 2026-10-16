@@ -9,9 +9,9 @@
     <link rel="preconnect" href="https://api.rss2json.com" crossorigin>
     <link rel="dns-prefetch" href="https://api.allorigins.win">
     <script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
-    <link rel="stylesheet" href="style.css?v=21">
-    <script src="config.js?v=21" defer></script>
-    <script src="app.js?v=21" defer></script>
+    <link rel="stylesheet" href="style.css?v=22">
+    <script src="config.js?v=22" defer></script>
+    <script src="app.js?v=22" defer></script>
 </head>
 <body>
     <header class="top">
@@ -60,9 +60,10 @@
             </div>
             <p id="settings-msg" role="status"></p>
             <div id="discover-result"></div>
+            <p class="auto-save-note">追加・名前変更・ON/OFF・削除は自動でこの端末に保存されます。下のボタンは別端末へ渡す用です。</p>
             <div class="sheet-foot">
-                <button id="feeds-export" class="btn" type="button">設定を保存</button>
-                <button id="feeds-import" class="btn" type="button">設定を取り込み</button>
+                <button id="feeds-export" class="btn" type="button">設定ファイルに書き出す</button>
+                <button id="feeds-import" class="btn" type="button">設定ファイルから取り込む</button>
                 <input id="feeds-file" type="file" accept="application/json,.json" hidden>
                 <button id="feeds-reset" class="btn" type="button">初期状態に戻す</button>
             </div>
