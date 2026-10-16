@@ -23,6 +23,15 @@ const DEFAULT_FEEDS = JSON.parse(JSON.stringify(RSS_FEEDS));
         if (!ok.length) return;
         RSS_FEEDS.length = 0;
         ok.forEach(f => RSS_FEEDS.push({ name: f.name, url: f.url, siteUrl: f.siteUrl || "", off: !!f.off }));
+        // 既存の保存リストに無い初期フィードがあれば末尾に足す（削除したものは復活させない）
+        let added = false;
+        for (const d of DEFAULT_FEEDS) {
+            if (!RSS_FEEDS.some(f => f.name === d.name)) {
+                RSS_FEEDS.push(JSON.parse(JSON.stringify(d)));
+                added = true;
+            }
+        }
+        if (added) saveCustomFeeds();
     } catch {}
 })();
 
