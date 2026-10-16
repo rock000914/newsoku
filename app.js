@@ -11,7 +11,11 @@ let applyNow = false;  // true の間は、スクロール中でも即反映す�
 let rafId = 0;
 
 const FEEDS_KEY = "customFeeds.v1";
+const REMOVED_KEY = "removedFeeds.v1";
 const DEFAULT_FEEDS = JSON.parse(JSON.stringify(RSS_FEEDS));
+function getRemoved() { try { return JSON.parse(localStorage.getItem(REMOVED_KEY) || "[]"); } catch { return []; } }
+function addRemoved(name) { try { const l = getRemoved(); if (!l.includes(name)) localStorage.setItem(REMOVED_KEY, JSON.stringify([...l, name])); } catch {} }
+function forgetRemoved(name) { try { localStorage.setItem(REMOVED_KEY, JSON.stringify(getRemoved().filter(n => n !== name))); } catch {} }
 (function applyCustomFeeds() {
     try {
         const raw = localStorage.getItem(FEEDS_KEY);
@@ -23,10 +27,12 @@ const DEFAULT_FEEDS = JSON.parse(JSON.stringify(RSS_FEEDS));
         if (!ok.length) return;
         RSS_FEEDS.length = 0;
         ok.forEach(f => RSS_FEEDS.push({ name: f.name, url: f.url, siteUrl: f.siteUrl || "", off: !!f.off }));
-        // 既存の保存リストに無い初期フィードがあれば末尾に足す（削除したものは復活させない）
+        // 既存の保存リストに無い初期フィードがあれば末尾に足す。ただし
+        // ユーザーが削除したもの（REMOVED_KEY入り）は復活させない。
+        const removed = getRemoved();
         let added = false;
         for (const d of DEFAULT_FEEDS) {
-            if (!RSS_FEEDS.some(f => f.name === d.name)) {
+            if (!RSS_FEEDS.some(f => f.name === d.name) && !removed.includes(d.name)) {
                 RSS_FEEDS.push(JSON.parse(JSON.stringify(d)));
                 added = true;
             }
@@ -382,6 +388,7 @@ function normalizeUrl(u) {
 function addFeed(name, url, siteUrl) {
     name = String(name || "").trim() || (() => { try { return new URL(siteUrl || url).hostname; } catch { return url; } })();
     if (RSS_FEEDS.some(f => f.name === name)) { settingsMsg("同名のフィードがあります: " + name); return false; }
+    forgetRemoved(name); // 再追加時は削除記録を取り消す
     RSS_FEEDS.push({ name, url, siteUrl: siteUrl || "" });
     afterFeedsChanged();
     refresh(false);
@@ -497,7 +504,7 @@ function initSettings() {
         const i = e.target.dataset.del;
         if (i == null) return;
         const [rm] = RSS_FEEDS.splice(+i, 1);
-        if (rm) delete feedData[rm.name];
+        if (rm) { delete feedData[rm.name]; addRemoved(rm.name); }
         afterFeedsChanged();
         renderFeedList();
     });
@@ -582,6 +589,10 @@ function initSettings() {
             RSS_FEEDS.length = 0;
             ok.forEach(x => RSS_FEEDS.push({ name: x.name, url: x.url, siteUrl: x.siteUrl || "", off: !!x.off }));
             try {
+                const names = new Set(ok.map(x => x.name));
+                localStorage.setItem(REMOVED_KEY, JSON.stringify(DEFAULT_FEEDS.map(d => d.name).filter(n => !names.has(n))));
+            } catch {}
+            try {
                 if (typeof data.relayUrl === "string" && data.relayUrl) localStorage.setItem("relayUrl", data.relayUrl);
             } catch {}
             filter = "all";
@@ -596,7 +607,7 @@ function initSettings() {
     });
 
     $("feeds-reset").addEventListener("click", () => {
-        try { localStorage.removeItem(FEEDS_KEY); } catch {}
+        try { localStorage.removeItem(FEEDS_KEY); localStorage.removeItem(REMOVED_KEY); } catch {}
         RSS_FEEDS.length = 0;
         DEFAULT_FEEDS.forEach(f => RSS_FEEDS.push(JSON.parse(JSON.stringify(f))));
         filter = "all";
