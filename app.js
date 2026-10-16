@@ -33,7 +33,7 @@ function forgetRemoved(name) { try { localStorage.setItem(REMOVED_KEY, JSON.stri
         for (const f of RSS_FEEDS) {
             const d = DEFAULT_FEEDS.find(x => x.name === f.name);
             if (d && JSON.stringify(f.url) !== JSON.stringify(d.url) &&
-                [].concat(f.url).some(u => /^(https:\/\/blog\.livedoor\.jp\/itsoku|https:\/\/www\.fx2ch\.net\/)/.test(u))) {
+                [].concat(f.url).some(u => /^https?:\/\/blog\.livedoor\.jp\/itsoku|^https:\/\/www\.fx2ch\.net\//.test(u))) {
                 f.url = JSON.parse(JSON.stringify(d.url));
                 repaired = true;
             }

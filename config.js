@@ -12,7 +12,7 @@ const RSS_FEEDS = [
     { name: "川口マガジン",         url: ["https://kawaguchi-magazine.com/feed", "https://kawaguchi-magazine.com/feed/", "https://kawaguchi-magazine.com/?feed=rss2"], siteUrl: "https://kawaguchi-magazine.com/" },
     { name: "mitaku.net",           url: "https://mitaku.net/feed/", siteUrl: "https://mitaku.net/" },
     { name: "アニー速報",           url: "http://www.anige-sokuhouvip.com/?xml", siteUrl: "http://www.anige-sokuhouvip.com/" },
-    { name: "IT速報",               url: "http://blog.livedoor.jp/itsoku/index.rdf", siteUrl: "http://blog.livedoor.jp/itsoku/" }
+    { name: "IT速報",               url: ["https://itsoku.org/index.rdf", "https://itsoku.org/atom.xml"], siteUrl: "https://itsoku.org/" }
 ];
 
 // ---- API ------------------------------------------------------------------
