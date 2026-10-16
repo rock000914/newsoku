@@ -5,6 +5,7 @@ const $ = (id) => document.getElementById(id);
 
 let feedData = {};     // name -> { t: 取得時刻, items: [{title, link, ts}] }
 let feedStatus = {};   // name -> "loading" | "ok" | "error"
+let feedError = {};    // name -> 直近の失敗理由
 let filter = "all";
 let renderedOnce = false;
 let applyNow = false;  // true の間は、スクロール中でも即反映する（手動更新時）
@@ -27,6 +28,16 @@ function forgetRemoved(name) { try { localStorage.setItem(REMOVED_KEY, JSON.stri
         if (!ok.length) return;
         RSS_FEEDS.length = 0;
         ok.forEach(f => RSS_FEEDS.push({ name: f.name, url: f.url, siteUrl: f.siteUrl || "", off: !!f.off }));
+        // 保存済みリスト内の既知の誤URLを修復（IT速報は https だとTLS失敗するため http が正）
+        let repaired = false;
+        for (const f of RSS_FEEDS) {
+            const d = DEFAULT_FEEDS.find(x => x.name === f.name);
+            if (d && JSON.stringify(f.url) !== JSON.stringify(d.url) &&
+                [].concat(f.url).some(u => /^(https:\/\/blog\.livedoor\.jp\/itsoku|https:\/\/www\.fx2ch\.net\/)/.test(u))) {
+                f.url = JSON.parse(JSON.stringify(d.url));
+                repaired = true;
+            }
+        }
         // 既存の保存リストに無い初期フィードがあれば末尾に足す。ただし
         // ユーザーが削除したもの（REMOVED_KEY入り）は復活させない。
         const removed = getRemoved();
@@ -37,7 +48,7 @@ function forgetRemoved(name) { try { localStorage.setItem(REMOVED_KEY, JSON.stri
                 added = true;
             }
         }
-        if (added) saveCustomFeeds();
+        if (added || repaired) saveCustomFeeds();
     } catch {}
 })();
 
@@ -247,10 +258,12 @@ async function refresh(force = false) {
             const items = clean(await fetchFeed(f));
             feedData[f.name] = { t: Date.now(), items };
             feedStatus[f.name] = "ok";
+            delete feedError[f.name];
             saveCache();
         } catch (e) {
             console.warn("fetch failed: " + f.name + "\n" + e.message);
             feedStatus[f.name] = "error";
+            feedError[f.name] = String(e.message || e).split("\n")[0].slice(0, 120);
         }
         updateChrome();
         scheduleRender();
@@ -366,7 +379,8 @@ function renderFeedList() {
     el.innerHTML = RSS_FEEDS.map((f, i) =>
         `<div class="feed-row"><label class="feed-toggle"><input type="checkbox" data-toggle="${i}"${f.off ? "" : " checked"}></label>` +
         `<input class="feed-name-input" data-rename="${i}" value="${esc(f.name)}" maxlength="24" aria-label="サイト名">` +
-        `<span class="feed-url">${esc([].concat(f.url)[0])}${[].concat(f.url).length > 1 ? " 他" : ""}</span>` +
+        `<span class="feed-url">${esc([].concat(f.url)[0])}${[].concat(f.url).length > 1 ? " 他" : ""}` +
+        `${feedStatus[f.name] === "error" && feedError[f.name] ? `<br><span class="feed-err">${esc(feedError[f.name])}</span>` : ""}</span>` +
         `<button type="button" class="btn danger" data-del="${i}">削除</button></div>`
     ).join("") || `<p class="empty">フィードがありません。</p>`;
 }
