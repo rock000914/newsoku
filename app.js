@@ -28,13 +28,14 @@ function forgetRemoved(name) { try { localStorage.setItem(REMOVED_KEY, JSON.stri
         if (!ok.length) return;
         RSS_FEEDS.length = 0;
         ok.forEach(f => RSS_FEEDS.push({ name: f.name, url: f.url, siteUrl: f.siteUrl || "", off: !!f.off }));
-        // 保存済みリスト内の既知の誤URLを修復（IT速報は https だとTLS失敗するため http が正）
+        // 初期フィードと同名のものは URL・siteUrl を共通設定に常に同期
+        // （旧URLの保存残りを確実に新URLへ直す）
         let repaired = false;
         for (const f of RSS_FEEDS) {
             const d = DEFAULT_FEEDS.find(x => x.name === f.name);
-            if (d && JSON.stringify(f.url) !== JSON.stringify(d.url) &&
-                [].concat(f.url).some(u => /^https?:\/\/blog\.livedoor\.jp\/itsoku|^https:\/\/www\.fx2ch\.net\//.test(u))) {
+            if (d && JSON.stringify([].concat(f.url)) !== JSON.stringify([].concat(d.url))) {
                 f.url = JSON.parse(JSON.stringify(d.url));
+                f.siteUrl = d.siteUrl || f.siteUrl || "";
                 repaired = true;
             }
         }
@@ -637,7 +638,7 @@ function initSettings() {
 function init() {
     loadCache();
     const verEl = $("app-ver");
-    if (verEl) verEl.textContent = "v27";
+    if (verEl) verEl.textContent = "v28";
 
     $("source-nav").addEventListener("click", (e) => {
         const b = e.target.closest(".chip");

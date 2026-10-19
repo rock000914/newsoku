@@ -5,12 +5,15 @@ const ALLOWED_ORIGINS = [
   "https://rock000914.github.io",
   "http://localhost:8080",
   "http://127.0.0.1:8080",
+  // file:// で開いたページは Origin が "null" になるため許可（個人利用）
+  "null",
 ];
 
 export default {
   async fetch(request) {
     const origin = request.headers.get("Origin") || "";
-    const allowed = ALLOWED_ORIGINS.includes(origin);
+    // Origin なしの直接アクセス（ブラウザのアドレス欄など）も許可
+    const allowed = !origin || ALLOWED_ORIGINS.includes(origin);
     const cors = {
       "Access-Control-Allow-Origin": allowed ? origin : "null",
       "Access-Control-Allow-Methods": "GET, OPTIONS",
