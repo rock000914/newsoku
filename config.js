@@ -11,6 +11,7 @@ const RSS_FEEDS = [
     { name: "メガニケ",             url: ["https://mega-nikke.com/feed", "https://mega-nikke.com/feed/", "https://mega-nikke.com/?feed=rss2"], siteUrl: "https://mega-nikke.com/" },
     { name: "川口マガジン",         url: ["https://kawaguchi-magazine.com/feed", "https://kawaguchi-magazine.com/feed/", "https://kawaguchi-magazine.com/?feed=rss2"], siteUrl: "https://kawaguchi-magazine.com/" },
     { name: "mitaku.net",           url: "https://mitaku.net/feed/", siteUrl: "https://mitaku.net/" },
+    { name: "アニゲー速報",         url: "http://www.anige-sokuhouvip.com/?xml", siteUrl: "http://www.anige-sokuhouvip.com/", off: true },
     { name: "IT速報",               url: ["https://itsoku.org/index.rdf", "https://itsoku.org/atom.xml"], siteUrl: "https://itsoku.org/" }
 ];
 
