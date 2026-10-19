@@ -636,6 +636,8 @@ function initSettings() {
 /* ---------- init ---------- */
 function init() {
     loadCache();
+    const verEl = $("app-ver");
+    if (verEl) verEl.textContent = "v27";
 
     $("source-nav").addEventListener("click", (e) => {
         const b = e.target.closest(".chip");
