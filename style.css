@@ -33,7 +33,9 @@ body {
     padding: .5rem max(.75rem, calc((100% - 1100px) / 2)) 0;
 }
 .top-row { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
-h1 { font-size: 1.05rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+h1 { font-size: 1.05rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+h1:hover { color: var(--accent); }
+#top-title[aria-busy="true"] { opacity: .6; pointer-events: none; }
 .kao { font-weight: 400; color: var(--muted); font-size: .8rem; margin-left: .25rem; }
 .actions { display: flex; gap: .4rem; flex-shrink: 0; }
 .btn {

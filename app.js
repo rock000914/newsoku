@@ -638,7 +638,7 @@ function initSettings() {
 function init() {
     loadCache();
     const verEl = $("app-ver");
-    if (verEl) verEl.textContent = "v28";
+    if (verEl) verEl.textContent = "v29";
 
     $("source-nav").addEventListener("click", (e) => {
         const b = e.target.closest(".chip");
@@ -665,6 +665,16 @@ function init() {
     window.addEventListener("resize", () => {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(updateNavCollapse, 200);
+    });
+    $("top-title").addEventListener("click", async () => {
+        const t = $("top-title");
+        window.scrollTo({ top: 0 });
+        filter = "all";
+        renderNav();
+        render();
+        t.setAttribute("aria-busy", "true");
+        applyNow = true;
+        try { await refresh(true); } finally { applyNow = false; t.removeAttribute("aria-busy"); }
     });
     $("theme-btn").addEventListener("click", () => {
         const next = effectiveTheme() === "dark" ? "light" : "dark";
